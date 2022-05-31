@@ -1,0 +1,1703 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model abilities {
+  abilityId     Int     @id @db.UnsignedSmallInt
+  name          String? @db.TinyText
+  job           Int     @default(0) @db.UnsignedTinyInt
+  level         Int     @default(0) @db.UnsignedTinyInt
+  validTarget   Int     @default(0) @db.UnsignedSmallInt
+  recastTime    Int     @default(0) @db.UnsignedSmallInt
+  recastId      Int     @default(0) @db.UnsignedSmallInt
+  message1      Int     @default(0) @db.UnsignedSmallInt
+  message2      Int     @default(0) @db.UnsignedSmallInt
+  animation     Int     @default(0) @db.UnsignedSmallInt
+  animationTime Int     @default(0) @db.UnsignedSmallInt
+  castTime      Int     @default(0) @db.UnsignedSmallInt
+  actionType    Int     @default(6) @db.UnsignedTinyInt
+  range         Float   @default(0.0) @db.Float
+  isAOE         Int     @default(0) @db.UnsignedTinyInt
+  CE            Int     @default(0) @db.SmallInt
+  VE            Int     @default(0) @db.SmallInt
+  meritModID    Int     @default(0) @db.SmallInt
+  addType       Int     @default(0) @db.SmallInt
+  content_tag   String? @db.VarChar(7)
+}
+
+model abilities_charges {
+  recastId   Int     @db.UnsignedSmallInt
+  job        Int     @db.UnsignedTinyInt
+  level      Int     @db.UnsignedTinyInt
+  maxCharges Boolean @default(false)
+  chargeTime Int     @default(0) @db.UnsignedSmallInt
+  meritModID Int     @default(0) @db.UnsignedSmallInt
+
+  @@id([recastId, job, level])
+}
+
+model account_ip_record {
+  login_time DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  accid      Int
+  charid     Int
+  client_ip  String   @db.TinyText
+
+  @@id([login_time, accid])
+}
+
+model accounts {
+  id                 Int      @id @default(0) @db.UnsignedInt
+  login              String   @default("") @db.VarChar(16)
+  password           String   @default("") @db.VarChar(64)
+  current_email      String   @default("") @db.VarChar(64)
+  registration_email String   @default("") @db.VarChar(64)
+  timecreate         DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  timelastmodify     DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  content_ids        Int      @default(16) @db.UnsignedTinyInt
+  expansions         Int      @default(4094) @db.UnsignedSmallInt
+  features           Int      @default(253) @db.UnsignedTinyInt
+  status             Int      @default(1) @db.UnsignedTinyInt
+  priv               Int      @default(1) @db.UnsignedTinyInt
+}
+
+model accounts_banned {
+  accid       Int      @id @default(0) @db.UnsignedInt
+  timebann    DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  timeunbann  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  banncomment String?  @db.VarChar(512)
+}
+
+model accounts_parties {
+  charid            Int               @id @default(0) @db.UnsignedInt
+  partyid           Int               @default(0) @db.UnsignedInt
+  partyflag         Int               @default(0) @db.UnsignedSmallInt
+  allianceid        Int               @default(0) @db.UnsignedInt
+  timestamp         DateTime          @default(now()) @db.Timestamp(0)
+  accounts_sessions accounts_sessions @relation(fields: [charid], references: [charid], onDelete: Cascade, onUpdate: Restrict, map: "accounts_parties_ibfk_1")
+}
+
+model accounts_sessions {
+  accid            Int               @unique(map: "accid") @default(0) @db.UnsignedInt
+  charid           Int               @id @default(0) @db.UnsignedInt
+  targid           Int               @default(0) @db.UnsignedSmallInt
+  unitychat        Int               @default(0) @db.UnsignedInt
+  linkshellid1     Int               @default(0) @db.UnsignedInt
+  linkshellrank1   Int               @default(0) @db.UnsignedSmallInt
+  linkshellid2     Int               @default(0) @db.UnsignedInt
+  linkshellrank2   Int               @default(0) @db.UnsignedSmallInt
+  session_key      Bytes             @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(20)
+  server_addr      Int               @default(0)
+  server_port      Int               @default(0) @db.UnsignedSmallInt
+  client_addr      Int               @default(0)
+  client_port      Int               @default(0) @db.UnsignedSmallInt
+  version_mismatch Boolean           @default(false)
+  seacom_type      Boolean           @default(false)
+  seacom_message   Bytes?            @db.TinyBlob
+  accounts_parties accounts_parties?
+}
+
+model auction_house {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  itemid      Int     @default(0) @db.UnsignedSmallInt
+  stack       Boolean @default(false)
+  seller      Int     @default(0) @db.UnsignedInt
+  seller_name String? @db.VarChar(15)
+  date        Int     @default(0) @db.UnsignedInt
+  price       Int     @default(0) @db.UnsignedInt
+  buyer_name  String? @db.VarChar(15)
+  sale        Int     @default(0) @db.UnsignedInt
+  sell_date   Int     @default(0) @db.UnsignedInt
+
+  @@index([seller], map: "charid")
+  @@index([itemid], map: "itemid")
+}
+
+model audit_chat {
+  lineID    Int      @id @default(autoincrement())
+  speaker   String   @db.TinyText
+  type      String   @db.TinyText
+  lsName    String?  @db.TinyText
+  recipient String?  @db.TinyText
+  message   Bytes?   @db.Blob
+  datetime  DateTime @db.DateTime(0)
+}
+
+model audit_gm {
+  date_time   DateTime @db.DateTime(0)
+  gm_name     String   @db.VarChar(16)
+  command     String   @db.VarChar(40)
+  full_string String   @db.VarChar(200)
+
+  @@id([date_time, gm_name])
+}
+
+model augments {
+  augmentId  Int     @db.UnsignedSmallInt
+  multiplier Int     @default(0) @db.SmallInt
+  modId      Int     @default(0) @db.UnsignedSmallInt
+  value      Int     @default(0) @db.SmallInt
+  isPet      Boolean @default(false)
+  petType    Int     @default(0) @db.UnsignedTinyInt
+
+  @@id([augmentId, multiplier, modId, isPet, petType])
+}
+
+model automaton_abilities {
+  abilityid   Int    @id @db.UnsignedSmallInt
+  abilityname String @db.VarChar(40)
+  reqframe    Int    @default(0) @db.UnsignedSmallInt
+  skilllevel  Int    @default(0) @db.UnsignedSmallInt
+}
+
+model automaton_spells {
+  spellid    Int @id @db.UnsignedSmallInt
+  skilllevel Int @default(0) @db.UnsignedSmallInt
+  heads      Int @default(0) @db.UnsignedTinyInt
+  enfeeble   Int @default(0) @db.UnsignedSmallInt
+  immunity   Int @default(0) @db.UnsignedSmallInt
+  removes    Int @default(0) @db.UnsignedInt
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model bcnm_battlefield {
+  bcnmId            Int  @db.UnsignedSmallInt
+  battlefieldNumber Int? @db.TinyInt
+  monsterId         Int
+  conditions        Int  @default(0) @db.TinyInt
+
+  @@ignore
+}
+
+model bcnm_info {
+  bcnmId           Int     @id @db.UnsignedSmallInt
+  zoneId           Int     @default(0) @db.UnsignedTinyInt
+  name             String  @db.VarChar(30)
+  fastestName      String? @default("Not Set!") @db.VarChar(15)
+  fastestPartySize Int     @default(0) @db.UnsignedTinyInt
+  fastestTime      Int?    @default(1) @db.UnsignedInt
+  timeLimit        Int     @default(1800) @db.UnsignedSmallInt
+  levelCap         Int     @default(75) @db.UnsignedSmallInt
+  partySize        Int     @default(6) @db.UnsignedSmallInt
+  lootDropId       Int     @default(0) @db.UnsignedSmallInt
+  rules            Int     @default(0) @db.UnsignedSmallInt
+  isMission        Boolean @default(false)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model bcnm_treasure_chests {
+  bcnmId            Int  @db.UnsignedSmallInt
+  battlefieldNumber Int? @db.TinyInt
+  npcId             Int
+
+  @@ignore
+}
+
+model blue_spell_list {
+  spellid               Int @db.SmallInt
+  mob_skill_id          Int @db.UnsignedSmallInt
+  set_points            Int @db.SmallInt
+  trait_category        Int @db.SmallInt
+  trait_category_weight Int @db.SmallInt
+  primary_sc            Int @db.SmallInt
+  secondary_sc          Int @db.SmallInt
+
+  @@id([spellid, mob_skill_id])
+}
+
+model blue_spell_mods {
+  spellId Int @db.UnsignedSmallInt
+  modid   Int @db.UnsignedSmallInt
+  value   Int @default(0) @db.SmallInt
+
+  @@id([spellId, modid])
+}
+
+model blue_traits {
+  trait_category      Int @db.UnsignedSmallInt
+  trait_points_needed Int @db.UnsignedSmallInt
+  traitid             Int @db.UnsignedTinyInt
+  modifier            Int @db.UnsignedSmallInt
+  value               Int @db.SmallInt
+
+  @@id([trait_category, trait_points_needed, modifier])
+}
+
+model campaign_map {
+  id                     Int     @id @db.UnsignedTinyInt
+  zoneid                 Int     @default(0) @db.UnsignedSmallInt
+  isbattle               Boolean @default(false)
+  nation                 Int     @default(8) @db.UnsignedTinyInt
+  heroism                Int     @default(0) @db.UnsignedTinyInt
+  influence_sandoria     Int     @default(0) @db.UnsignedTinyInt
+  influence_bastok       Int     @default(0) @db.UnsignedTinyInt
+  influence_windurst     Int     @default(0) @db.UnsignedTinyInt
+  influence_beastman     Int     @default(0) @db.UnsignedTinyInt
+  current_fortifications Int     @default(0) @db.UnsignedSmallInt
+  current_resources      Int     @default(0) @db.UnsignedSmallInt
+  max_fortifications     Int     @default(0) @db.UnsignedSmallInt
+  max_resources          Int     @default(0) @db.UnsignedSmallInt
+}
+
+model campaign_nation {
+  id             Int @id @db.UnsignedTinyInt
+  reconnaissance Int @default(0) @db.UnsignedTinyInt
+  morale         Int @default(0) @db.UnsignedTinyInt
+  prosperity     Int @default(0) @db.UnsignedTinyInt
+}
+
+model char_blacklist {
+  charid_owner  Int @db.UnsignedInt
+  charid_target Int @db.UnsignedInt
+
+  @@id([charid_target, charid_owner])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model char_effects {
+  charid    Int @db.UnsignedInt
+  effectid  Int @db.UnsignedSmallInt
+  icon      Int @default(0) @db.UnsignedSmallInt
+  power     Int @default(0) @db.UnsignedSmallInt
+  tick      Int @default(0) @db.UnsignedInt
+  duration  Int @default(0) @db.UnsignedInt
+  subid     Int @default(0) @db.UnsignedSmallInt
+  subpower  Int @default(0) @db.SmallInt
+  tier      Int @default(0) @db.UnsignedSmallInt
+  flags     Int @default(0) @db.UnsignedInt
+  timestamp Int @default(0) @db.UnsignedInt
+
+  @@index([charid], map: "charid")
+  @@ignore
+}
+
+model char_equip {
+  charid      Int     @db.UnsignedInt
+  slotid      Boolean @default(false)
+  equipslotid Boolean @default(false)
+  containerid Boolean @default(false)
+
+  @@id([charid, equipslotid])
+}
+
+model char_exp {
+  charid Int     @id @db.UnsignedInt
+  mode   Boolean @default(false)
+  war    Int     @default(0) @db.UnsignedSmallInt
+  mnk    Int     @default(0) @db.UnsignedSmallInt
+  whm    Int     @default(0) @db.UnsignedSmallInt
+  blm    Int     @default(0) @db.UnsignedSmallInt
+  rdm    Int     @default(0) @db.UnsignedSmallInt
+  thf    Int     @default(0) @db.UnsignedSmallInt
+  pld    Int     @default(0) @db.UnsignedSmallInt
+  drk    Int     @default(0) @db.UnsignedSmallInt
+  bst    Int     @default(0) @db.UnsignedSmallInt
+  brd    Int     @default(0) @db.UnsignedSmallInt
+  rng    Int     @default(0) @db.UnsignedSmallInt
+  sam    Int     @default(0) @db.UnsignedSmallInt
+  nin    Int     @default(0) @db.UnsignedSmallInt
+  drg    Int     @default(0) @db.UnsignedSmallInt
+  smn    Int     @default(0) @db.UnsignedSmallInt
+  blu    Int     @default(0) @db.UnsignedSmallInt
+  cor    Int     @default(0) @db.UnsignedSmallInt
+  pup    Int     @default(0) @db.UnsignedSmallInt
+  dnc    Int     @default(0) @db.UnsignedSmallInt
+  sch    Int     @default(0) @db.UnsignedSmallInt
+  geo    Int     @default(0) @db.UnsignedSmallInt
+  run    Int     @default(0) @db.UnsignedSmallInt
+  merits Int     @default(0) @db.UnsignedTinyInt
+  limits Int     @default(0) @db.UnsignedSmallInt
+}
+
+model char_history {
+  charid             Int @id @db.UnsignedInt
+  enemies_defeated   Int @default(0) @db.UnsignedInt
+  times_knocked_out  Int @default(0) @db.UnsignedInt
+  mh_entrances       Int @default(0) @db.UnsignedInt
+  joined_parties     Int @default(0) @db.UnsignedInt
+  joined_alliances   Int @default(0) @db.UnsignedInt
+  spells_cast        Int @default(0) @db.UnsignedInt
+  abilities_used     Int @default(0) @db.UnsignedInt
+  ws_used            Int @default(0) @db.UnsignedInt
+  items_used         Int @default(0) @db.UnsignedInt
+  chats_sent         Int @default(0) @db.UnsignedInt
+  npc_interactions   Int @default(0) @db.UnsignedInt
+  battles_fought     Int @default(0) @db.UnsignedInt
+  gm_calls           Int @default(0) @db.UnsignedInt
+  distance_travelled Int @default(0) @db.UnsignedInt
+}
+
+model char_inventory {
+  charid    Int     @db.UnsignedInt
+  location  Boolean @default(false)
+  slot      Int     @default(0) @db.UnsignedTinyInt
+  itemId    Int     @default(65535) @db.UnsignedSmallInt
+  quantity  Int     @default(0) @db.UnsignedInt
+  bazaar    Int     @default(0) @db.UnsignedInt
+  signature String  @default("") @db.VarChar(20)
+  extra     Bytes?  @db.TinyBlob
+
+  @@id([charid, location, slot])
+}
+
+model char_job_points {
+  charid           Int @db.UnsignedInt
+  jobid            Int @db.UnsignedTinyInt
+  capacity_points  Int @default(0) @db.UnsignedSmallInt
+  job_points       Int @default(0) @db.UnsignedSmallInt
+  job_points_spent Int @default(0) @db.UnsignedSmallInt
+  jptype0          Int @default(0) @db.UnsignedTinyInt
+  jptype1          Int @default(0) @db.UnsignedTinyInt
+  jptype2          Int @default(0) @db.UnsignedTinyInt
+  jptype3          Int @default(0) @db.UnsignedTinyInt
+  jptype4          Int @default(0) @db.UnsignedTinyInt
+  jptype5          Int @default(0) @db.UnsignedTinyInt
+  jptype6          Int @default(0) @db.UnsignedTinyInt
+  jptype7          Int @default(0) @db.UnsignedTinyInt
+  jptype8          Int @default(0) @db.UnsignedTinyInt
+  jptype9          Int @default(0) @db.UnsignedTinyInt
+
+  @@unique([charid, jobid], map: "idx_char_job_points_charid_jobid")
+  @@index([charid], map: "char_job_points_charid_index")
+  @@index([charid, jobid], map: "char_job_points_charid_jobid_index")
+}
+
+model char_jobs {
+  charid   Int @id @db.UnsignedInt
+  unlocked Int @default(126) @db.UnsignedInt
+  genkai   Int @default(50) @db.UnsignedTinyInt
+  war      Int @default(1) @db.UnsignedTinyInt
+  mnk      Int @default(1) @db.UnsignedTinyInt
+  whm      Int @default(1) @db.UnsignedTinyInt
+  blm      Int @default(1) @db.UnsignedTinyInt
+  rdm      Int @default(1) @db.UnsignedTinyInt
+  thf      Int @default(1) @db.UnsignedTinyInt
+  pld      Int @default(0) @db.UnsignedTinyInt
+  drk      Int @default(0) @db.UnsignedTinyInt
+  bst      Int @default(0) @db.UnsignedTinyInt
+  brd      Int @default(0) @db.UnsignedTinyInt
+  rng      Int @default(0) @db.UnsignedTinyInt
+  sam      Int @default(0) @db.UnsignedTinyInt
+  nin      Int @default(0) @db.UnsignedTinyInt
+  drg      Int @default(0) @db.UnsignedTinyInt
+  smn      Int @default(0) @db.UnsignedTinyInt
+  blu      Int @default(0) @db.UnsignedTinyInt
+  cor      Int @default(0) @db.UnsignedTinyInt
+  pup      Int @default(0) @db.UnsignedTinyInt
+  dnc      Int @default(0) @db.UnsignedTinyInt
+  sch      Int @default(0) @db.UnsignedTinyInt
+  geo      Int @default(0) @db.UnsignedTinyInt
+  run      Int @default(0) @db.UnsignedTinyInt
+}
+
+model char_look {
+  charid Int     @id @db.UnsignedInt
+  face   Int     @default(0) @db.UnsignedTinyInt
+  race   Int     @default(0) @db.UnsignedTinyInt
+  size   Boolean @default(false)
+  head   Int     @default(0) @db.UnsignedSmallInt
+  body   Int     @default(8) @db.UnsignedSmallInt
+  hands  Int     @default(8) @db.UnsignedSmallInt
+  legs   Int     @default(8) @db.UnsignedSmallInt
+  feet   Int     @default(8) @db.UnsignedSmallInt
+  main   Int     @default(0) @db.UnsignedSmallInt
+  sub    Int     @default(0) @db.UnsignedSmallInt
+  ranged Int     @default(0) @db.UnsignedSmallInt
+}
+
+model char_merit {
+  charid   Int @db.UnsignedInt
+  meritid  Int @db.UnsignedSmallInt
+  upgrades Int @db.UnsignedSmallInt
+
+  @@unique([meritid, charid], map: "idx_char_merit_meritid_charid")
+  @@index([charid], map: "char_merits_charid_index")
+}
+
+model char_pet {
+  charid               Int    @id @db.UnsignedInt
+  wyvernid             Int    @default(0) @db.UnsignedSmallInt
+  automatonid          Int    @default(0) @db.UnsignedSmallInt
+  unlocked_attachments Bytes? @db.Blob
+  equipped_attachments Bytes? @db.Blob
+  adventuringfellowid  Int    @default(0) @db.UnsignedSmallInt
+  chocoboid            Int    @default(0) @db.UnsignedInt
+  field_chocobo        Int    @default(0) @db.UnsignedInt
+}
+
+model char_points {
+  charid                    Int @id @db.UnsignedInt
+  sandoria_cp               Int @default(0) @db.UnsignedInt
+  bastok_cp                 Int @default(0) @db.UnsignedInt
+  windurst_cp               Int @default(0) @db.UnsignedInt
+  beastman_seal             Int @default(0) @db.UnsignedInt
+  kindred_seal              Int @default(0) @db.UnsignedSmallInt
+  kindred_crest             Int @default(0) @db.UnsignedSmallInt
+  high_kindred_crest        Int @default(0) @db.UnsignedSmallInt
+  sacred_kindred_crest      Int @default(0) @db.UnsignedSmallInt
+  ancient_beastcoin         Int @default(0) @db.UnsignedSmallInt
+  valor_point               Int @default(0) @db.UnsignedSmallInt
+  scyld                     Int @default(0) @db.UnsignedSmallInt
+  guild_fishing             Int @default(0) @db.UnsignedInt
+  guild_woodworking         Int @default(0) @db.UnsignedInt
+  guild_smithing            Int @default(0) @db.UnsignedInt
+  guild_goldsmithing        Int @default(0) @db.UnsignedInt
+  guild_weaving             Int @default(0) @db.UnsignedInt
+  guild_leathercraft        Int @default(0) @db.UnsignedInt
+  guild_bonecraft           Int @default(0) @db.UnsignedInt
+  guild_alchemy             Int @default(0) @db.UnsignedInt
+  guild_cooking             Int @default(0) @db.UnsignedInt
+  cinder                    Int @default(0) @db.UnsignedInt
+  fire_fewell               Int @default(0) @db.UnsignedTinyInt
+  ice_fewell                Int @default(0) @db.UnsignedTinyInt
+  wind_fewell               Int @default(0) @db.UnsignedTinyInt
+  earth_fewell              Int @default(0) @db.UnsignedTinyInt
+  lightning_fewell          Int @default(0) @db.UnsignedTinyInt
+  water_fewell              Int @default(0) @db.UnsignedTinyInt
+  light_fewell              Int @default(0) @db.UnsignedTinyInt
+  dark_fewell               Int @default(0) @db.UnsignedTinyInt
+  ballista_point            Int @default(0) @db.UnsignedInt
+  fellow_point              Int @default(0) @db.UnsignedInt
+  daily_tally               Int @default(-1)
+  chocobuck_sandoria        Int @default(0) @db.UnsignedSmallInt
+  chocobuck_bastok          Int @default(0) @db.UnsignedSmallInt
+  chocobuck_windurst        Int @default(0) @db.UnsignedSmallInt
+  research_mark             Int @default(0) @db.UnsignedInt
+  tunnel_worm               Int @default(0) @db.UnsignedTinyInt
+  morion_worm               Int @default(0) @db.UnsignedTinyInt
+  phantom_worm              Int @default(0) @db.UnsignedTinyInt
+  moblin_marble             Int @default(0) @db.UnsignedInt
+  infamy                    Int @default(0) @db.UnsignedSmallInt
+  prestige                  Int @default(0) @db.UnsignedSmallInt
+  legion_point              Int @default(0) @db.UnsignedInt
+  spark_of_eminence         Int @default(0) @db.UnsignedInt
+  shining_star              Int @default(0) @db.UnsignedInt
+  imperial_standing         Int @default(0) @db.UnsignedInt
+  leujaoam_assault_point    Int @default(0) @db.UnsignedInt
+  mamool_assault_point      Int @default(0) @db.UnsignedInt
+  lebros_assault_point      Int @default(0) @db.UnsignedInt
+  periqia_assault_point     Int @default(0) @db.UnsignedInt
+  ilrusi_assault_point      Int @default(0) @db.UnsignedInt
+  nyzul_isle_assault_point  Int @default(0) @db.UnsignedInt
+  zeni_point                Int @default(0) @db.UnsignedInt
+  jetton                    Int @default(0) @db.UnsignedInt
+  therion_ichor             Int @default(0) @db.UnsignedInt
+  allied_notes              Int @default(0) @db.UnsignedInt
+  aman_vouchers             Int @default(0) @db.UnsignedSmallInt
+  login_points              Int @default(0) @db.UnsignedSmallInt
+  bayld                     Int @default(0) @db.UnsignedInt
+  kinetic_unit              Int @default(0) @db.UnsignedSmallInt
+  obsidian_fragment         Int @default(0) @db.UnsignedInt
+  lebondopt_wing            Int @default(0) @db.UnsignedSmallInt
+  pulchridopt_wing          Int @default(0) @db.UnsignedSmallInt
+  mweya_plasm               Int @default(0) @db.UnsignedInt
+  cruor                     Int @default(0) @db.UnsignedInt
+  resistance_credit         Int @default(0) @db.UnsignedInt
+  dominion_note             Int @default(0) @db.UnsignedInt
+  fifth_echelon_trophy      Int @default(0) @db.UnsignedTinyInt
+  fourth_echelon_trophy     Int @default(0) @db.UnsignedTinyInt
+  third_echelon_trophy      Int @default(0) @db.UnsignedTinyInt
+  second_echelon_trophy     Int @default(0) @db.UnsignedTinyInt
+  first_echelon_trophy      Int @default(0) @db.UnsignedTinyInt
+  cave_points               Int @default(0) @db.UnsignedTinyInt
+  id_tags                   Int @default(0) @db.UnsignedTinyInt
+  op_credits                Int @default(0) @db.UnsignedTinyInt
+  traverser_stones          Int @default(0) @db.UnsignedInt
+  voidstones                Int @default(0) @db.UnsignedInt
+  kupofried_corundums       Int @default(0) @db.UnsignedInt
+  imprimaturs               Int @default(0) @db.UnsignedTinyInt
+  pheromone_sacks           Int @default(0) @db.UnsignedTinyInt
+  rems_ch1                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch2                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch3                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch4                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch5                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch6                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch7                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch8                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch9                  Int @default(0) @db.UnsignedTinyInt
+  rems_ch10                 Int @default(0) @db.UnsignedTinyInt
+  reclamation_marks         Int @default(0) @db.UnsignedSmallInt
+  unity_accolades           Int @default(0) @db.UnsignedInt
+  fire_crystals             Int @default(0) @db.UnsignedSmallInt
+  ice_crystals              Int @default(0) @db.UnsignedSmallInt
+  wind_crystals             Int @default(0) @db.UnsignedSmallInt
+  earth_crystals            Int @default(0) @db.UnsignedSmallInt
+  lightning_crystals        Int @default(0) @db.UnsignedSmallInt
+  water_crystals            Int @default(0) @db.UnsignedSmallInt
+  light_crystals            Int @default(0) @db.UnsignedSmallInt
+  dark_crystals             Int @default(0) @db.UnsignedSmallInt
+  deeds                     Int @default(0) @db.UnsignedSmallInt
+  current_accolades         Int @default(0) @db.UnsignedInt
+  prev_accolades            Int @default(0) @db.UnsignedInt
+  mystical_canteen          Int @default(0) @db.UnsignedTinyInt
+  ghastly_stone             Int @default(0) @db.UnsignedTinyInt
+  ghastly_stone_1           Int @default(0) @db.UnsignedTinyInt
+  ghastly_stone_2           Int @default(0) @db.UnsignedTinyInt
+  verdigris_stone           Int @default(0) @db.UnsignedTinyInt
+  verdigris_stone_1         Int @default(0) @db.UnsignedTinyInt
+  verdigris_stone_2         Int @default(0) @db.UnsignedTinyInt
+  wailing_stone             Int @default(0) @db.UnsignedTinyInt
+  wailing_stone_1           Int @default(0) @db.UnsignedTinyInt
+  wailing_stone_2           Int @default(0) @db.UnsignedTinyInt
+  snowslit_stone            Int @default(0) @db.UnsignedTinyInt
+  snowslit_stone_1          Int @default(0) @db.UnsignedTinyInt
+  snowslit_stone_2          Int @default(0) @db.UnsignedTinyInt
+  snowtip_stone             Int @default(0) @db.UnsignedTinyInt
+  snowtip_stone_1           Int @default(0) @db.UnsignedTinyInt
+  snowtip_stone_2           Int @default(0) @db.UnsignedTinyInt
+  snowdim_stone             Int @default(0) @db.UnsignedTinyInt
+  snowdim_stone_1           Int @default(0) @db.UnsignedTinyInt
+  snowdim_stone_2           Int @default(0) @db.UnsignedTinyInt
+  snoworb_stone             Int @default(0) @db.UnsignedTinyInt
+  snoworb_stone_1           Int @default(0) @db.UnsignedTinyInt
+  snoworb_stone_2           Int @default(0) @db.UnsignedTinyInt
+  leafslit_stone            Int @default(0) @db.UnsignedTinyInt
+  leafslit_stone_1          Int @default(0) @db.UnsignedTinyInt
+  leafslit_stone_2          Int @default(0) @db.UnsignedTinyInt
+  leaftip_stone             Int @default(0) @db.UnsignedTinyInt
+  leaftip_stone_1           Int @default(0) @db.UnsignedTinyInt
+  leaftip_stone_2           Int @default(0) @db.UnsignedTinyInt
+  leafdim_stone             Int @default(0) @db.UnsignedTinyInt
+  leafdim_stone_1           Int @default(0) @db.UnsignedTinyInt
+  leafdim_stone_2           Int @default(0) @db.UnsignedTinyInt
+  leaforb_stone             Int @default(0) @db.UnsignedTinyInt
+  leaforb_stone_1           Int @default(0) @db.UnsignedTinyInt
+  leaforb_stone_2           Int @default(0) @db.UnsignedTinyInt
+  duskslit_stone            Int @default(0) @db.UnsignedTinyInt
+  duskslit_stone_1          Int @default(0) @db.UnsignedTinyInt
+  duskslit_stone_2          Int @default(0) @db.UnsignedTinyInt
+  dusktip_stone             Int @default(0) @db.UnsignedTinyInt
+  dusktip_stone_1           Int @default(0) @db.UnsignedTinyInt
+  dusktip_stone_2           Int @default(0) @db.UnsignedTinyInt
+  duskdim_stone             Int @default(0) @db.UnsignedTinyInt
+  duskdim_stone_1           Int @default(0) @db.UnsignedTinyInt
+  duskdim_stone_2           Int @default(0) @db.UnsignedTinyInt
+  duskorb_stone             Int @default(0) @db.UnsignedTinyInt
+  duskorb_stone_1           Int @default(0) @db.UnsignedTinyInt
+  duskorb_stone_2           Int @default(0) @db.UnsignedTinyInt
+  pellucid_stone            Int @default(0) @db.UnsignedTinyInt
+  fern_stone                Int @default(0) @db.UnsignedTinyInt
+  taupe_stone               Int @default(0) @db.UnsignedTinyInt
+  escha_beads               Int @default(0) @db.UnsignedSmallInt
+  escha_silt                Int @default(0) @db.UnsignedInt
+  potpourri                 Int @default(0) @db.UnsignedInt
+  current_hallmarks         Int @default(0) @db.UnsignedInt
+  total_hallmarks           Int @default(0) @db.UnsignedInt
+  gallantry                 Int @default(0) @db.UnsignedInt
+  crafter_points            Int @default(0) @db.UnsignedInt
+  fire_crystal_set          Int @default(0) @db.UnsignedTinyInt
+  ice_crystal_set           Int @default(0) @db.UnsignedTinyInt
+  wind_crystal_set          Int @default(0) @db.UnsignedTinyInt
+  earth_crystal_set         Int @default(0) @db.UnsignedTinyInt
+  lightning_crystal_set     Int @default(0) @db.UnsignedTinyInt
+  water_crystal_set         Int @default(0) @db.UnsignedTinyInt
+  light_crystal_set         Int @default(0) @db.UnsignedTinyInt
+  dark_crystal_set          Int @default(0) @db.UnsignedTinyInt
+  mc_s_sr01_set             Int @default(0) @db.UnsignedTinyInt
+  mc_s_sr02_set             Int @default(0) @db.UnsignedTinyInt
+  mc_s_sr03_set             Int @default(0) @db.UnsignedTinyInt
+  liquefaction_spheres_set  Int @default(0) @db.UnsignedTinyInt
+  induration_spheres_set    Int @default(0) @db.UnsignedTinyInt
+  detonation_spheres_set    Int @default(0) @db.UnsignedTinyInt
+  scission_spheres_set      Int @default(0) @db.UnsignedTinyInt
+  impaction_spheres_set     Int @default(0) @db.UnsignedTinyInt
+  reverberation_spheres_set Int @default(0) @db.UnsignedTinyInt
+  transfixion_spheres_set   Int @default(0) @db.UnsignedTinyInt
+  compression_spheres_set   Int @default(0) @db.UnsignedTinyInt
+  fusion_spheres_set        Int @default(0) @db.UnsignedTinyInt
+  distortion_spheres_set    Int @default(0) @db.UnsignedTinyInt
+  fragmentation_spheres_set Int @default(0) @db.UnsignedTinyInt
+  gravitation_spheres_set   Int @default(0) @db.UnsignedTinyInt
+  light_spheres_set         Int @default(0) @db.UnsignedTinyInt
+  darkness_spheres_set      Int @default(0) @db.UnsignedTinyInt
+  silver_aman_voucher       Int @default(0) @db.UnsignedInt
+}
+
+model char_profile {
+  charid              Int @id @db.UnsignedInt
+  rank_points         Int @default(0) @db.UnsignedInt
+  rank_sandoria       Int @default(1) @db.UnsignedTinyInt
+  rank_bastok         Int @default(1) @db.UnsignedTinyInt
+  rank_windurst       Int @default(1) @db.UnsignedTinyInt
+  fame_sandoria       Int @default(0) @db.UnsignedSmallInt
+  fame_bastok         Int @default(0) @db.UnsignedSmallInt
+  fame_windurst       Int @default(0) @db.UnsignedSmallInt
+  fame_norg           Int @default(0) @db.UnsignedSmallInt
+  fame_jeuno          Int @default(0) @db.UnsignedSmallInt
+  fame_aby_konschtat  Int @default(0) @db.UnsignedSmallInt
+  fame_aby_tahrongi   Int @default(0) @db.UnsignedSmallInt
+  fame_aby_latheine   Int @default(0) @db.UnsignedSmallInt
+  fame_aby_misareaux  Int @default(0) @db.UnsignedSmallInt
+  fame_aby_vunkerl    Int @default(0) @db.UnsignedSmallInt
+  fame_aby_attohwa    Int @default(0) @db.UnsignedSmallInt
+  fame_aby_altepa     Int @default(0) @db.UnsignedSmallInt
+  fame_aby_grauberg   Int @default(0) @db.UnsignedSmallInt
+  fame_aby_uleguerand Int @default(0) @db.UnsignedSmallInt
+  fame_adoulin        Int @default(0) @db.UnsignedSmallInt
+  unity_leader        Int @default(0) @db.UnsignedTinyInt
+}
+
+model char_recast {
+  charid Int @db.UnsignedInt
+  id     Int @default(0) @db.SmallInt
+  time   Int @default(0)
+  recast Int @default(0) @db.SmallInt
+
+  @@id([charid, id])
+}
+
+model char_skills {
+  charid  Int @db.UnsignedInt
+  skillid Int @db.UnsignedTinyInt
+  value   Int @default(0) @db.UnsignedSmallInt
+  rank    Int @default(0) @db.UnsignedTinyInt
+
+  @@id([charid, skillid])
+}
+
+model char_spells {
+  charid  Int @db.UnsignedInt
+  spellid Int @db.UnsignedSmallInt
+
+  @@unique([spellid, charid], map: "idx_char_spells_spellid_charid")
+  @@index([charid], map: "char_spells_charid_index")
+  @@index([spellid], map: "char_spells_spellid_index")
+}
+
+model char_stats {
+  charid         Int     @id @db.UnsignedInt
+  hp             Int     @default(50) @db.UnsignedSmallInt
+  mp             Int     @default(50) @db.UnsignedSmallInt
+  nameflags      Int     @default(0) @db.UnsignedInt
+  mhflag         Int     @default(0) @db.UnsignedTinyInt
+  mjob           Int     @default(0) @db.UnsignedTinyInt
+  sjob           Int     @default(0) @db.UnsignedTinyInt
+  death          Int     @default(0) @db.UnsignedInt
+  h              Int     @default(0) @map("2h") @db.UnsignedInt
+  title          Int     @default(0) @db.UnsignedSmallInt
+  bazaar_message Bytes?  @db.Blob
+  zoning         Boolean @default(false)
+  mlvl           Int     @default(1) @db.UnsignedTinyInt
+  slvl           Int     @default(1) @db.UnsignedTinyInt
+  pet_id         Int     @default(0) @db.UnsignedSmallInt
+  pet_type       Int     @default(0) @db.UnsignedSmallInt
+  pet_hp         Int     @default(0) @db.UnsignedSmallInt
+  pet_mp         Int     @default(0) @db.UnsignedSmallInt
+}
+
+model char_storage {
+  charid    Int @id @db.UnsignedInt
+  inventory Int @default(30) @db.UnsignedTinyInt
+  safe      Int @default(50) @db.UnsignedTinyInt
+  locker    Int @default(0) @db.UnsignedTinyInt
+  satchel   Int @default(30) @db.UnsignedTinyInt
+  sack      Int @default(0) @db.UnsignedTinyInt
+  case      Int @default(80) @db.UnsignedTinyInt
+  wardrobe  Int @default(80) @db.UnsignedTinyInt
+  wardrobe2 Int @default(80) @db.UnsignedTinyInt
+  wardrobe3 Int @default(80) @db.UnsignedTinyInt
+  wardrobe4 Int @default(80) @db.UnsignedTinyInt
+  wardrobe5 Int @default(80) @db.UnsignedTinyInt
+  wardrobe6 Int @default(80) @db.UnsignedTinyInt
+  wardrobe7 Int @default(80) @db.UnsignedTinyInt
+  wardrobe8 Int @default(80) @db.UnsignedTinyInt
+}
+
+model char_style {
+  charid Int @id @db.UnsignedInt
+  head   Int @default(0) @db.UnsignedSmallInt
+  body   Int @default(0) @db.UnsignedSmallInt
+  hands  Int @default(0) @db.UnsignedSmallInt
+  legs   Int @default(0) @db.UnsignedSmallInt
+  feet   Int @default(0) @db.UnsignedSmallInt
+  main   Int @default(0) @db.UnsignedSmallInt
+  sub    Int @default(0) @db.UnsignedSmallInt
+  ranged Int @default(0) @db.UnsignedSmallInt
+}
+
+model char_unlocks {
+  charid            Int    @id @db.UnsignedInt
+  outpost_sandy     Int    @default(0) @db.UnsignedInt
+  outpost_bastok    Int    @default(0) @db.UnsignedInt
+  outpost_windy     Int    @default(0) @db.UnsignedInt
+  mog_locker        Int    @default(0) @db.UnsignedInt
+  runic_portal      Int    @default(0) @db.UnsignedTinyInt
+  maw               Int    @default(0) @db.UnsignedInt
+  campaign_sandy    Int    @default(0) @db.UnsignedInt
+  campaign_bastok   Int    @default(0) @db.UnsignedInt
+  campaign_windy    Int    @default(0) @db.UnsignedInt
+  homepoints        Bytes? @db.Blob
+  survivals         Bytes? @db.Blob
+  traverser_start   Int    @default(0) @db.UnsignedInt
+  traverser_claimed Int    @default(0) @db.UnsignedInt
+  abyssea_conflux   Bytes? @default(dbgenerated("(0)")) @db.Blob
+}
+
+model char_vars {
+  charid  Int    @db.UnsignedInt
+  varname String @db.VarChar(30)
+  value   Int
+
+  @@id([charid, varname])
+}
+
+model chars {
+  charid              Int      @id @db.UnsignedInt
+  accid               Int      @db.UnsignedInt
+  charname            String   @db.VarChar(15)
+  nation              Boolean  @default(false)
+  pos_zone            Int      @db.UnsignedSmallInt
+  pos_prevzone        Int      @default(0) @db.UnsignedSmallInt
+  pos_rot             Int      @default(0) @db.UnsignedTinyInt
+  pos_x               Float    @default(0.000) @db.Float
+  pos_y               Float    @default(0.000) @db.Float
+  pos_z               Float    @default(0.000) @db.Float
+  moghouse            Int      @default(0) @db.UnsignedInt
+  boundary            Int      @default(0) @db.UnsignedSmallInt
+  home_zone           Int      @default(0) @db.UnsignedTinyInt
+  home_rot            Int      @default(0) @db.UnsignedTinyInt
+  home_x              Float    @default(0.000) @db.Float
+  home_y              Float    @default(0.000) @db.Float
+  home_z              Float    @default(0.000) @db.Float
+  missions            Bytes?   @db.Blob
+  assault             Bytes?   @db.Blob
+  campaign            Bytes?   @db.Blob
+  eminence            Bytes?   @db.Blob
+  quests              Bytes?   @db.Blob
+  keyitems            Bytes?   @db.Blob
+  set_blue_spells     Bytes?   @db.Blob
+  abilities           Bytes?   @db.Blob
+  weaponskills        Bytes?   @db.Blob
+  titles              Bytes?   @db.Blob
+  zones               Bytes?   @db.Blob
+  playtime            Int      @default(0) @db.UnsignedInt
+  unlocked_weapons    Bytes?   @db.Blob
+  gmlevel             Int      @default(0) @db.UnsignedSmallInt
+  languages           Boolean? @default(false)
+  mentor              Int      @default(0) @db.SmallInt
+  job_master          Boolean  @default(true)
+  campaign_allegiance Boolean  @default(false)
+  isstylelocked       Boolean  @default(false)
+  nnameflags          Int      @default(0) @db.UnsignedInt
+  chatfilters         BigInt   @default(0) @db.UnsignedBigInt
+  moghancement        Int      @default(0) @db.UnsignedSmallInt
+  timecreated         DateTime @default(now()) @db.DateTime(0)
+  lastupdate          DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([charname], map: "charname")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model cheat_incidents {
+  charid        Int      @db.UnsignedInt
+  incident_time DateTime @default(now()) @db.DateTime(0)
+  cheatid       Int      @db.UnsignedInt
+  cheatarg      Int      @db.UnsignedInt
+  description   String?  @db.VarChar(128)
+
+  @@ignore
+}
+
+model cheat_types {
+  cheatid         Int    @id @db.UnsignedInt
+  name            String @db.VarChar(15)
+  description     String @db.VarChar(128)
+  argument        Int    @db.UnsignedInt
+  action_bitmask  Int    @db.UnsignedInt
+  warning_message String @db.VarChar(128)
+}
+
+model conquest_system {
+  region_id           Int @id @default(0) @db.TinyInt
+  region_control      Int @default(0) @db.TinyInt
+  region_control_prev Int @default(0) @db.TinyInt
+  sandoria_influence  Int @default(0)
+  bastok_influence    Int @default(0)
+  windurst_influence  Int @default(0)
+  beastmen_influence  Int @default(0)
+}
+
+model delivery_box {
+  charid    Int     @db.UnsignedInt
+  charname  String? @db.VarChar(15)
+  box       Boolean
+  slot      Int     @default(0) @db.UnsignedSmallInt
+  itemid    Int     @db.UnsignedSmallInt
+  itemsubid Int     @default(0) @db.UnsignedSmallInt
+  quantity  Int     @db.UnsignedInt
+  extra     Bytes?  @db.TinyBlob
+  senderid  Int     @default(0) @db.UnsignedInt
+  sender    String? @db.VarChar(15)
+  received  Boolean @default(false)
+  sent      Boolean @default(false)
+
+  @@id([charid, box, slot])
+}
+
+model despoil_effects {
+  itemId   Int @id @db.UnsignedSmallInt
+  effectId Int @db.UnsignedSmallInt
+}
+
+model exp_base {
+  level Int @id @default(0) @db.UnsignedTinyInt
+  exp   Int @default(0) @db.UnsignedInt
+}
+
+model exp_table {
+  level Int @id @db.TinyInt
+  r1    Int @default(0) @db.UnsignedSmallInt
+  r2    Int @default(0) @db.UnsignedSmallInt
+  r3    Int @default(0) @db.UnsignedSmallInt
+  r4    Int @default(0) @db.UnsignedSmallInt
+  r5    Int @default(0) @db.UnsignedSmallInt
+  r6    Int @default(0) @db.UnsignedSmallInt
+  r7    Int @default(0) @db.UnsignedSmallInt
+  r8    Int @default(0) @db.UnsignedSmallInt
+  r9    Int @default(0) @db.UnsignedSmallInt
+  r10   Int @default(0) @db.UnsignedSmallInt
+  r11   Int @default(0) @db.UnsignedSmallInt
+  r12   Int @default(0) @db.UnsignedSmallInt
+  r13   Int @default(0) @db.UnsignedSmallInt
+  r14   Int @default(0) @db.UnsignedSmallInt
+  r15   Int @default(0) @db.UnsignedSmallInt
+  r16   Int @default(0) @db.UnsignedSmallInt
+  r17   Int @default(0) @db.UnsignedSmallInt
+  r18   Int @default(0) @db.UnsignedSmallInt
+  r19   Int @default(0) @db.UnsignedSmallInt
+  r20   Int @default(0) @db.UnsignedSmallInt
+}
+
+model fishing_area {
+  zoneid       Int    @db.UnsignedSmallInt
+  areaid       Int    @db.UnsignedSmallInt
+  name         String @db.VarChar(64)
+  bound_type   Int    @default(0) @db.UnsignedTinyInt
+  bound_height Int    @default(0) @db.UnsignedTinyInt
+  bound_radius Int    @default(0) @db.UnsignedSmallInt
+  bounds       Bytes? @db.Blob
+  center_x     Float  @default(0.000) @db.Float
+  center_y     Float  @default(0.000) @db.Float
+  center_z     Float  @default(0.000) @db.Float
+
+  @@id([zoneid, areaid])
+}
+
+model fishing_bait {
+  baitid  Int    @id @db.UnsignedInt
+  name    String @db.VarChar(64)
+  type    Int    @db.UnsignedTinyInt
+  maxhook Int    @db.UnsignedTinyInt
+  losable Int    @default(1) @db.UnsignedTinyInt
+  flags   Int    @default(0) @db.UnsignedInt
+  mmm     Int    @db.UnsignedTinyInt
+  rankmod Int    @db.UnsignedTinyInt
+}
+
+model fishing_bait_affinity {
+  baitid Int @db.UnsignedSmallInt
+  fishid Int @default(0) @db.UnsignedSmallInt
+  power  Int @default(0) @db.UnsignedSmallInt
+
+  @@id([baitid, fishid])
+}
+
+model fishing_catch {
+  zoneid  Int @db.UnsignedSmallInt
+  areaid  Int @db.UnsignedTinyInt
+  groupid Int @db.UnsignedSmallInt
+
+  @@id([zoneid, areaid, groupid])
+}
+
+model fishing_fish {
+  fishid           Int    @id @db.UnsignedInt
+  name             String @db.VarChar(64)
+  skill_level      Int    @default(0) @db.UnsignedTinyInt
+  difficulty       Int    @db.UnsignedTinyInt
+  base_delay       Int    @db.UnsignedTinyInt
+  base_move        Int    @db.UnsignedTinyInt
+  min_length       Int    @default(1) @db.UnsignedSmallInt
+  max_length       Int    @default(1) @db.UnsignedSmallInt
+  ranking          Int    @db.UnsignedSmallInt
+  size_type        Int    @default(0) @db.UnsignedTinyInt
+  water_type       Int    @db.UnsignedTinyInt
+  log              Int    @default(255) @db.UnsignedTinyInt
+  quest            Int    @default(255) @db.UnsignedTinyInt
+  quest_status     Int    @default(0) @db.UnsignedTinyInt
+  flags            Int    @default(0) @db.UnsignedInt
+  hour_pattern     Int    @db.UnsignedTinyInt
+  moon_pattern     Int    @db.UnsignedTinyInt
+  month_pattern    Int    @db.UnsignedTinyInt
+  legendary        Int    @default(0) @db.UnsignedInt
+  legendary_flags  Int    @default(0) @db.UnsignedInt
+  item             Int    @default(0) @db.UnsignedTinyInt
+  max_hook         Int    @default(1) @db.UnsignedTinyInt
+  rarity           Int    @default(0) @db.UnsignedSmallInt
+  required_keyitem Int    @db.UnsignedSmallInt
+  required_catches Bytes  @db.Blob
+  family           Int    @db.UnsignedInt
+  quest_only       Int    @default(0) @db.UnsignedTinyInt
+  contest          Int    @default(0) @db.TinyInt
+  disabled         Int    @default(0) @db.UnsignedTinyInt
+}
+
+model fishing_group {
+  groupid      Int @db.UnsignedInt
+  fishid       Int @db.UnsignedInt
+  rarity       Int @default(0) @db.UnsignedSmallInt
+  pool_size    Int @default(0) @db.UnsignedSmallInt
+  restock_rate Int @default(0) @db.UnsignedSmallInt
+
+  @@id([groupid, fishid])
+}
+
+model fishing_mob {
+  mobid              Int    @id @db.UnsignedInt
+  name               String @db.VarChar(64)
+  zoneid             Int    @db.UnsignedSmallInt
+  level              Int    @db.TinyInt
+  min_length         Int    @db.UnsignedSmallInt
+  max_length         Int    @db.UnsignedSmallInt
+  ranking            Int    @db.UnsignedSmallInt
+  difficulty         Int    @db.UnsignedTinyInt
+  base_delay         Int    @db.UnsignedTinyInt
+  base_move          Int    @db.UnsignedTinyInt
+  log                Int    @default(255) @db.UnsignedTinyInt
+  quest              Int    @default(255) @db.UnsignedTinyInt
+  nm                 Int    @default(0) @db.UnsignedTinyInt
+  nm_flags           Int    @default(0) @db.UnsignedInt
+  areaid             Int    @default(0) @db.UnsignedSmallInt
+  rarity             Int    @default(0) @db.UnsignedSmallInt
+  min_respawn        Int    @default(0) @db.UnsignedInt
+  max_respawn        Int    @default(0) @db.UnsignedInt
+  required_baitid    Int    @default(0) @db.UnsignedSmallInt
+  alternative_baitid Int    @default(0) @db.UnsignedSmallInt
+  required_keyitem   Int    @default(0) @db.UnsignedSmallInt
+  quest_only         Int    @default(0) @db.UnsignedTinyInt
+  disabled           Int    @default(0) @db.UnsignedTinyInt
+}
+
+model fishing_rod {
+  rodid            Int    @id @db.UnsignedInt
+  name             String @db.VarChar(64)
+  material         Int    @db.UnsignedTinyInt
+  size_type        Int    @db.UnsignedTinyInt
+  flags            Int    @default(0) @db.UnsignedInt
+  min_rank         Int    @default(0) @db.UnsignedSmallInt
+  max_rank         Int    @default(0) @db.UnsignedSmallInt
+  fish_attack      Int    @db.UnsignedTinyInt
+  lgd_bonus_attack Int    @db.UnsignedTinyInt
+  fish_recovery    Int    @db.UnsignedTinyInt
+  fish_time        Int    @db.UnsignedTinyInt
+  lgd_bonus_time   Int    @default(0) @db.UnsignedTinyInt
+  sm_delay_bonus   Int    @db.UnsignedTinyInt
+  sm_move_bonus    Int    @db.UnsignedTinyInt
+  lg_delay_bonus   Int    @db.UnsignedTinyInt
+  lg_move_bonus    Int    @db.UnsignedTinyInt
+  multiplier       Int    @default(0) @db.UnsignedTinyInt
+  breakable        Int    @default(1) @db.UnsignedTinyInt
+  broken_rodid     Int    @db.UnsignedInt
+  mmm              Int    @db.UnsignedTinyInt
+  legendary        Int    @db.UnsignedTinyInt
+  rating           Int    @db.UnsignedTinyInt
+}
+
+model fishing_zone {
+  zoneid     Int    @id @db.UnsignedSmallInt
+  name       String @db.VarChar(64)
+  difficulty Int    @default(0) @db.UnsignedTinyInt
+}
+
+model gardening_results {
+  resultId     Int     @id @db.UnsignedSmallInt
+  seed         Boolean @default(false)
+  element1     Boolean @default(false)
+  element2     Boolean @default(false)
+  result       Int     @default(0) @db.UnsignedSmallInt
+  min_quantity Int     @default(0) @db.UnsignedTinyInt
+  max_quantity Int     @default(0) @db.UnsignedTinyInt
+  weight       Int     @default(0) @db.UnsignedSmallInt
+}
+
+model guild_item_points {
+  guildid    Boolean
+  itemid     Int     @db.UnsignedSmallInt
+  rank       Int     @db.UnsignedSmallInt
+  points     Int     @default(0) @db.UnsignedSmallInt
+  max_points Int     @default(0) @db.UnsignedSmallInt
+  pattern    Boolean @default(false)
+
+  @@id([guildid, itemid, pattern])
+}
+
+model guild_shops {
+  guildid          Int @db.UnsignedSmallInt
+  itemid           Int @db.UnsignedSmallInt
+  min_price        Int @default(0) @db.UnsignedInt
+  max_price        Int @default(0) @db.UnsignedInt
+  max_quantity     Int @default(0) @db.UnsignedSmallInt
+  daily_increase   Int @default(0) @db.UnsignedSmallInt
+  initial_quantity Int @default(0) @db.UnsignedSmallInt
+
+  @@id([guildid, itemid])
+}
+
+model guilds {
+  id          Boolean @id
+  points_name String  @db.VarChar(20)
+}
+
+model instance_entities {
+  instanceid Int @default(0) @db.UnsignedSmallInt
+  id         Int @default(0) @db.UnsignedInt
+
+  @@id([instanceid, id])
+}
+
+model instance_list {
+  instanceid    Int    @id @default(0) @db.UnsignedSmallInt
+  instance_name String @default("") @db.VarChar(35)
+  instance_zone Int    @default(0) @db.UnsignedSmallInt
+  entrance_zone Int    @default(0) @db.UnsignedSmallInt
+  time_limit    Int    @default(0) @db.UnsignedTinyInt
+  start_x       Float  @default(0.000) @db.Float
+  start_y       Float  @default(0.000) @db.Float
+  start_z       Float  @default(0.000) @db.Float
+  start_rot     Int    @default(0) @db.UnsignedTinyInt
+  music_day     Int    @default(-1) @db.SmallInt
+  music_night   Int    @default(-1) @db.SmallInt
+  battlesolo    Int    @default(-1) @db.SmallInt
+  battlemulti   Int    @default(-1) @db.SmallInt
+}
+
+model item_basic {
+  itemid    Int     @id @db.UnsignedSmallInt
+  subid     Int     @default(0) @db.UnsignedSmallInt
+  name      String  @db.TinyText
+  sortname  String  @db.TinyText
+  stackSize Int     @default(1) @db.UnsignedTinyInt
+  flags     Int     @default(0) @db.UnsignedSmallInt
+  aH        Int     @default(99) @db.UnsignedTinyInt
+  NoSale    Boolean @default(false)
+  BaseSell  Int     @default(0) @db.UnsignedInt
+}
+
+model item_equipment {
+  itemId     Int     @id @default(0) @db.UnsignedSmallInt
+  name       String? @db.TinyText
+  level      Int     @default(0) @db.UnsignedTinyInt
+  ilevel     Int     @default(0) @db.UnsignedTinyInt
+  jobs       Int     @default(0) @db.UnsignedInt
+  MId        Int     @default(0) @db.UnsignedSmallInt
+  shieldSize Boolean @default(false)
+  scriptType Int     @default(0) @db.UnsignedSmallInt
+  slot       Int     @default(0) @db.UnsignedSmallInt
+  rslot      Int     @default(0) @db.UnsignedSmallInt
+  su_level   Int     @default(0) @db.UnsignedTinyInt
+}
+
+model item_furnishing {
+  itemid       Int    @id @db.UnsignedSmallInt
+  name         String @db.Text
+  storage      Int    @default(0) @db.UnsignedTinyInt
+  moghancement Int    @default(0) @db.UnsignedSmallInt
+  element      Int    @default(0) @db.UnsignedTinyInt
+  aura         Int    @default(0) @db.UnsignedTinyInt
+}
+
+model item_latents {
+  itemId      Int @db.UnsignedSmallInt
+  modId       Int @db.UnsignedSmallInt
+  value       Int @default(0) @db.SmallInt
+  latentId    Int @db.SmallInt
+  latentParam Int @db.SmallInt
+
+  @@id([itemId, modId, value, latentId, latentParam])
+}
+
+model item_mods {
+  itemId Int @db.UnsignedSmallInt
+  modId  Int @db.UnsignedSmallInt
+  value  Int @default(0) @db.SmallInt
+
+  @@id([itemId, modId])
+}
+
+model item_mods_pet {
+  itemId  Int @db.UnsignedSmallInt
+  modId   Int @db.UnsignedSmallInt
+  value   Int @default(0) @db.SmallInt
+  petType Int @default(0) @db.UnsignedTinyInt
+
+  @@id([itemId, modId, petType])
+}
+
+model item_puppet {
+  itemid  Int    @id @db.UnsignedSmallInt
+  name    String @db.TinyText
+  slot    Int    @default(0) @db.UnsignedTinyInt
+  element Int    @default(0) @db.UnsignedInt
+}
+
+model item_usable {
+  itemid        Int     @id @db.UnsignedSmallInt
+  name          String  @db.Text
+  validTargets  Int     @default(0) @db.UnsignedSmallInt
+  activation    Int     @default(0) @db.UnsignedTinyInt
+  animation     Int     @default(0) @db.UnsignedSmallInt
+  animationTime Int     @default(0) @db.UnsignedTinyInt
+  maxCharges    Int     @default(0) @db.UnsignedTinyInt
+  useDelay      Int     @default(0) @db.UnsignedTinyInt
+  reuseDelay    Int     @default(0) @db.UnsignedInt
+  aoe           Boolean @default(false)
+}
+
+model item_weapon {
+  itemId        Int     @id @default(0) @db.UnsignedSmallInt
+  name          String? @db.Text
+  skill         Int     @default(0) @db.UnsignedTinyInt
+  subskill      Int     @default(0) @db.TinyInt
+  ilvl_skill    Int     @default(0) @db.SmallInt
+  ilvl_parry    Int     @default(0) @db.SmallInt
+  ilvl_macc     Int     @default(0) @db.SmallInt
+  dmgType       Int     @default(0) @db.UnsignedInt
+  hit           Boolean @default(true)
+  delay         Int     @default(0)
+  dmg           Int     @default(0) @db.UnsignedInt
+  unlock_points Int     @default(0) @db.SmallInt
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model job_point_gifts {
+  jobid     Int    @db.TinyInt
+  jp_needed Int    @default(0) @db.SmallInt
+  modid     Int    @default(0) @db.SmallInt
+  value     Int    @default(0) @db.TinyInt
+  desc      String @default("") @db.TinyText
+
+  @@ignore
+}
+
+model job_points {
+  job_pointid Int    @id @db.UnsignedSmallInt
+  name        String @db.VarChar(40)
+  upgrade     Int    @default(0) @db.UnsignedTinyInt
+  jobs        Int    @default(0) @db.UnsignedInt
+}
+
+model linkshells {
+  linkshellid Int     @id @default(autoincrement()) @db.UnsignedInt
+  name        String  @default("") @db.VarChar(20)
+  color       Int     @default(61440) @db.UnsignedSmallInt
+  poster      String  @default("") @db.VarChar(15)
+  message     Bytes?  @db.Blob
+  messagetime Int     @default(0) @db.UnsignedInt
+  postrights  Int     @default(0) @db.UnsignedTinyInt
+  broken      Boolean @default(false)
+}
+
+model magian {
+  trialId             Int  @id @unique(map: "trialId") @db.UnsignedSmallInt
+  reqItem             Int  @default(0) @db.UnsignedInt
+  reqItemAug1         Int? @default(0) @db.UnsignedSmallInt
+  reqItemAug2         Int? @default(0) @db.UnsignedSmallInt
+  reqItemAug3         Int? @default(0) @db.UnsignedSmallInt
+  reqItemAug4         Int? @default(0) @db.UnsignedSmallInt
+  reqItemAugValue1    Int? @default(0) @db.UnsignedTinyInt
+  reqItemAugValue2    Int? @default(0) @db.UnsignedTinyInt
+  reqItemAugValue3    Int? @default(0) @db.UnsignedTinyInt
+  reqItemAugValue4    Int? @default(0) @db.UnsignedTinyInt
+  rewardItem          Int  @default(0) @db.UnsignedInt
+  rewardItemAug1      Int? @default(0) @db.UnsignedSmallInt
+  rewardItemAug2      Int? @default(0) @db.UnsignedSmallInt
+  rewardItemAug3      Int? @default(0) @db.UnsignedSmallInt
+  rewardItemAug4      Int? @default(0) @db.UnsignedSmallInt
+  rewardItemAugValue1 Int? @default(0) @db.UnsignedTinyInt
+  rewardItemAugValue2 Int? @default(0) @db.UnsignedTinyInt
+  rewardItemAugValue3 Int? @default(0) @db.UnsignedTinyInt
+  rewardItemAugValue4 Int? @default(0) @db.UnsignedTinyInt
+  trialTarget         Int  @default(0) @db.UnsignedSmallInt
+  objectiveItem       Int? @default(0) @db.UnsignedInt
+  objectiveTotal      Int  @default(0) @db.UnsignedSmallInt
+  element             Int  @default(0) @db.UnsignedSmallInt
+  previousTrial       Int? @default(0) @db.UnsignedSmallInt
+}
+
+model merits {
+  meritid    Int    @id @db.UnsignedSmallInt
+  name       String @db.Char(25)
+  upgrade    Int    @default(0) @db.UnsignedTinyInt
+  value      Int    @default(0) @db.SmallInt
+  jobs       Int    @default(0) @db.UnsignedInt
+  upgradeid  Int    @default(0) @db.UnsignedTinyInt
+  catagoryid Int    @default(0) @db.UnsignedTinyInt
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model mob_droplist {
+  dropId    Int @db.UnsignedSmallInt
+  dropType  Int @default(0) @db.UnsignedTinyInt
+  groupId   Int @default(0) @db.UnsignedTinyInt
+  groupRate Int @default(1000) @db.UnsignedSmallInt
+  itemId    Int @default(0) @db.UnsignedSmallInt
+  itemRate  Int @default(0) @db.UnsignedSmallInt
+
+  @@index([dropId], map: "dropId")
+  @@ignore
+}
+
+model mob_family_mods {
+  familyid   Int     @db.UnsignedSmallInt
+  modid      Int     @db.UnsignedSmallInt
+  value      Int     @default(0) @db.SmallInt
+  is_mob_mod Boolean @default(false)
+
+  @@id([familyid, modid])
+}
+
+model mob_family_system {
+  familyID      Int     @id @db.UnsignedSmallInt
+  family        String? @db.TinyText
+  superFamilyID Int     @default(0) @db.UnsignedSmallInt
+  superFamily   String? @db.TinyText
+  ecosystemID   Int     @default(0) @db.UnsignedTinyInt
+  ecosystem     String? @db.TinyText
+  mobradius     Int     @default(0) @db.UnsignedTinyInt
+  speed         Int     @default(40) @db.UnsignedTinyInt
+  HP            Int     @default(100) @db.UnsignedTinyInt
+  MP            Int     @default(100) @db.UnsignedTinyInt
+  STR           Int     @default(3) @db.UnsignedSmallInt
+  DEX           Int     @default(3) @db.UnsignedSmallInt
+  VIT           Int     @default(3) @db.UnsignedSmallInt
+  AGI           Int     @default(3) @db.UnsignedSmallInt
+  INT           Int     @default(3) @db.UnsignedSmallInt
+  MND           Int     @default(3) @db.UnsignedSmallInt
+  CHR           Int     @default(3) @db.UnsignedSmallInt
+  ATT           Int     @default(3) @db.UnsignedSmallInt
+  DEF           Int     @default(3) @db.UnsignedSmallInt
+  ACC           Int     @default(3) @db.UnsignedSmallInt
+  EVA           Int     @default(3) @db.UnsignedSmallInt
+  Element       Float   @default(0) @db.Float
+  detects       Int     @default(0) @db.SmallInt
+  charmable     Int     @default(0) @db.TinyInt
+}
+
+model mob_groups {
+  groupid     Int     @db.UnsignedInt
+  poolid      Int     @default(0) @db.UnsignedInt
+  zoneid      Int     @default(0) @db.UnsignedSmallInt
+  name        String? @db.VarChar(24)
+  respawntime Int     @default(0) @db.UnsignedInt
+  spawntype   Int     @default(0) @db.UnsignedTinyInt
+  dropid      Int     @default(0) @db.UnsignedInt
+  HP          Int     @default(0) @db.MediumInt
+  MP          Int     @default(0) @db.MediumInt
+  minLevel    Int     @default(0) @db.UnsignedTinyInt
+  maxLevel    Int     @default(0) @db.UnsignedTinyInt
+  allegiance  Int     @default(0) @db.UnsignedTinyInt
+
+  @@id([zoneid, groupid])
+}
+
+model mob_pets {
+  mob_mobid  Int     @id @db.UnsignedInt
+  pet_offset Int     @default(1) @db.UnsignedInt
+  job        Int?    @default(9) @db.TinyInt
+  mobname    String? @db.VarChar(24)
+  petname    String? @db.VarChar(24)
+}
+
+model mob_pool_mods {
+  poolid     Int     @db.UnsignedSmallInt
+  modid      Int     @db.UnsignedSmallInt
+  value      Int     @default(0) @db.SmallInt
+  is_mob_mod Boolean @default(false)
+
+  @@id([poolid, modid])
+}
+
+model mob_pools {
+  poolid         Int     @id @db.UnsignedInt
+  name           String? @db.VarChar(24)
+  packet_name    String? @db.VarChar(24)
+  familyid       Int     @default(0) @db.UnsignedSmallInt
+  modelid        Bytes   @db.Binary(20)
+  mJob           Int     @default(1) @db.UnsignedTinyInt
+  sJob           Int     @default(1) @db.UnsignedTinyInt
+  cmbSkill       Int     @default(1) @db.UnsignedTinyInt
+  cmbDelay       Int     @default(240) @db.UnsignedSmallInt
+  cmbDmgMult     Int     @default(100) @db.UnsignedSmallInt
+  behavior       Int     @default(0) @db.UnsignedSmallInt
+  aggro          Boolean @default(false)
+  true_detection Boolean @default(false)
+  links          Boolean @default(false)
+  mobType        Int     @default(0) @db.UnsignedSmallInt
+  immunity       Int     @default(0)
+  name_prefix    Int     @default(0) @db.UnsignedTinyInt
+  flag           Int     @default(0) @db.UnsignedInt
+  entityFlags    Int     @default(0) @db.UnsignedInt
+  animationsub   Boolean @default(false)
+  hasSpellScript Boolean @default(false)
+  spellList      Int     @default(0) @db.SmallInt
+  namevis        Int     @default(1) @db.TinyInt
+  roamflag       Int     @default(0) @db.UnsignedSmallInt
+  skill_list_id  Int     @default(0) @db.UnsignedSmallInt
+  resist_id      Int     @default(0) @db.UnsignedSmallInt
+}
+
+model mob_resistances {
+  resist_id     Int     @id @db.UnsignedSmallInt
+  name          String? @db.TinyText
+  slash_sdt     Float   @default(1) @db.Float
+  pierce_sdt    Float   @default(1) @db.Float
+  h2h_sdt       Float   @default(1) @db.Float
+  impact_sdt    Float   @default(1) @db.Float
+  fire_sdt      Int     @default(0) @db.SmallInt
+  ice_sdt       Int     @default(0) @db.SmallInt
+  wind_sdt      Int     @default(0) @db.SmallInt
+  earth_sdt     Int     @default(0) @db.SmallInt
+  lightning_sdt Int     @default(0) @db.SmallInt
+  water_sdt     Int     @default(0) @db.SmallInt
+  light_sdt     Int     @default(0) @db.SmallInt
+  dark_sdt      Int     @default(0) @db.SmallInt
+  fire_res      Int     @default(0) @db.SmallInt
+  ice_res       Int     @default(0) @db.SmallInt
+  wind_res      Int     @default(0) @db.SmallInt
+  earth_res     Int     @default(0) @db.SmallInt
+  lightning_res Int     @default(0) @db.SmallInt
+  water_res     Int     @default(0) @db.SmallInt
+  light_res     Int     @default(0) @db.SmallInt
+  dark_res      Int     @default(0) @db.SmallInt
+}
+
+model mob_skill_lists {
+  skill_list_name String? @db.VarChar(40)
+  skill_list_id   Int     @db.UnsignedSmallInt
+  mob_skill_id    Int     @db.UnsignedSmallInt
+
+  @@id([skill_list_id, mob_skill_id])
+}
+
+model mob_skills {
+  mob_skill_id       Int     @id @db.UnsignedSmallInt
+  mob_anim_id        Int     @db.UnsignedSmallInt
+  mob_skill_name     String  @db.VarChar(40)
+  mob_skill_aoe      Boolean @default(false)
+  mob_skill_distance Float   @default(6.0) @db.Float
+  mob_anim_time      Int     @default(2000) @db.UnsignedSmallInt
+  mob_prepare_time   Int     @default(1000) @db.UnsignedSmallInt
+  mob_valid_targets  Int     @default(4) @db.UnsignedSmallInt
+  mob_skill_flag     Boolean @default(false)
+  mob_skill_param    Int     @default(0) @db.SmallInt
+  knockback          Boolean @default(false)
+  primary_sc         Int     @default(0) @db.TinyInt
+  secondary_sc       Int     @default(0) @db.TinyInt
+  tertiary_sc        Int     @default(0) @db.TinyInt
+}
+
+model mob_spawn_mods {
+  mobid      Int     @db.UnsignedInt
+  modid      Int     @db.UnsignedSmallInt
+  value      Int     @default(0) @db.SmallInt
+  is_mob_mod Boolean @default(false)
+
+  @@id([mobid, modid])
+}
+
+model mob_spawn_points {
+  mobid         Int     @id
+  mobname       String? @db.VarChar(24)
+  polutils_name String? @db.VarChar(50)
+  groupid       Int     @default(0) @db.UnsignedInt
+  pos_x         Float   @default(0.000) @db.Float
+  pos_y         Float   @default(0.000) @db.Float
+  pos_z         Float   @default(0.000) @db.Float
+  pos_rot       Int     @default(0) @db.UnsignedTinyInt
+}
+
+model mob_spell_lists {
+  spell_list_name String? @db.VarChar(30)
+  spell_list_id   Int     @db.UnsignedSmallInt
+  spell_id        Int     @db.UnsignedSmallInt
+  min_level       Int     @db.UnsignedTinyInt
+  max_level       Int     @db.UnsignedTinyInt
+
+  @@id([spell_list_id, spell_id])
+}
+
+model nm_spawn_points {
+  mobid Int
+  pos   Int   @default(0) @db.UnsignedTinyInt
+  pos_x Float @default(0.000) @db.Float
+  pos_y Float @default(0.000) @db.Float
+  pos_z Float @default(0.000) @db.Float
+
+  @@id([mobid, pos])
+}
+
+model npc_list {
+  npcid         Int     @id @db.UnsignedInt
+  name          String? @db.Char(24)
+  polutils_name String? @db.Char(50)
+  pos_rot       Int     @default(0) @db.UnsignedTinyInt
+  pos_x         Float   @default(0.000) @db.Float
+  pos_y         Float   @default(0.000) @db.Float
+  pos_z         Float   @default(0.000) @db.Float
+  flag          Int     @default(0) @db.UnsignedInt
+  speed         Int     @default(40) @db.UnsignedTinyInt
+  speedsub      Int     @default(40) @db.UnsignedTinyInt
+  animation     Int     @default(0) @db.UnsignedTinyInt
+  animationsub  Int     @default(0) @db.UnsignedTinyInt
+  namevis       Int     @default(0) @db.UnsignedTinyInt
+  status        Int     @default(0) @db.UnsignedTinyInt
+  entityFlags   Int     @default(0) @db.UnsignedInt
+  look          Bytes   @db.Binary(20)
+  name_prefix   Int     @default(0) @db.UnsignedTinyInt
+  content_tag   String? @db.VarChar(14)
+  widescan      Int     @default(1) @db.UnsignedTinyInt
+}
+
+model pet_list {
+  petid    Int    @id @default(autoincrement()) @db.UnsignedInt
+  name     String @db.Char(15)
+  poolid   Int    @default(0) @db.UnsignedInt
+  minLevel Int    @default(0) @db.UnsignedTinyInt
+  maxLevel Int    @default(0) @db.UnsignedTinyInt
+  time     Int    @default(0) @db.UnsignedInt
+  element  Int    @default(0) @db.UnsignedTinyInt
+}
+
+model pet_name {
+  id   Int    @id @db.UnsignedSmallInt
+  name String @db.Char(15)
+}
+
+model server_variables {
+  name  String @id @db.VarChar(50)
+  value Int
+}
+
+model skill_caps {
+  level Int @id @db.UnsignedTinyInt
+  r0    Int @default(0) @db.UnsignedSmallInt
+  r1    Int @default(0) @db.UnsignedSmallInt
+  r2    Int @default(0) @db.UnsignedSmallInt
+  r3    Int @default(0) @db.UnsignedSmallInt
+  r4    Int @default(0) @db.UnsignedSmallInt
+  r5    Int @default(0) @db.UnsignedSmallInt
+  r6    Int @default(0) @db.UnsignedSmallInt
+  r7    Int @default(0) @db.UnsignedSmallInt
+  r8    Int @default(0) @db.UnsignedSmallInt
+  r9    Int @default(0) @db.UnsignedSmallInt
+  r10   Int @default(0) @db.UnsignedSmallInt
+  r11   Int @default(0) @db.UnsignedSmallInt
+  r12   Int @default(0) @db.UnsignedSmallInt
+  r13   Int @default(0) @db.UnsignedSmallInt
+}
+
+model skill_ranks {
+  skillid Int     @id @default(0) @db.UnsignedTinyInt
+  name    String? @db.Char(12)
+  war     Int     @default(0) @db.UnsignedTinyInt
+  mnk     Int     @default(0) @db.UnsignedTinyInt
+  whm     Int     @default(0) @db.UnsignedTinyInt
+  blm     Int     @default(0) @db.UnsignedTinyInt
+  rdm     Int     @default(0) @db.UnsignedTinyInt
+  thf     Int     @default(0) @db.UnsignedTinyInt
+  pld     Int     @default(0) @db.UnsignedTinyInt
+  drk     Int     @default(0) @db.UnsignedTinyInt
+  bst     Int     @default(0) @db.UnsignedTinyInt
+  brd     Int     @default(0) @db.UnsignedTinyInt
+  rng     Int     @default(0) @db.UnsignedTinyInt
+  sam     Int     @default(0) @db.UnsignedTinyInt
+  nin     Int     @default(0) @db.UnsignedTinyInt
+  drg     Int     @default(0) @db.UnsignedTinyInt
+  smn     Int     @default(0) @db.UnsignedTinyInt
+  blu     Int     @default(0) @db.UnsignedTinyInt
+  cor     Int     @default(0) @db.UnsignedTinyInt
+  pup     Int     @default(0) @db.UnsignedTinyInt
+  dnc     Int     @default(0) @db.UnsignedTinyInt
+  sch     Int     @default(0) @db.UnsignedTinyInt
+  geo     Int     @default(0) @db.UnsignedTinyInt
+  run     Int     @default(0) @db.UnsignedTinyInt
+}
+
+model spell_list {
+  spellid           Int     @id @db.UnsignedSmallInt
+  name              String  @db.VarChar(24)
+  jobs              Bytes   @db.Binary(22)
+  group             Int     @default(0) @db.UnsignedTinyInt
+  family            Int     @default(0) @db.UnsignedSmallInt
+  element           Int     @default(0) @db.UnsignedTinyInt
+  zonemisc          Int     @default(0) @db.UnsignedSmallInt
+  validTargets      Int     @default(0) @db.UnsignedSmallInt
+  skill             Int     @default(0) @db.UnsignedTinyInt
+  mpCost            Int     @default(0) @db.UnsignedSmallInt
+  castTime          Int     @default(0) @db.UnsignedSmallInt
+  recastTime        Int     @default(0) @db.UnsignedInt
+  message           Int     @default(0) @db.UnsignedSmallInt
+  magicBurstMessage Int     @default(0) @db.SmallInt
+  animation         Int     @default(0) @db.UnsignedSmallInt
+  animationTime     Int     @default(2000) @db.UnsignedSmallInt
+  AOE               Boolean @default(false)
+  base              Int     @default(0) @db.UnsignedSmallInt
+  multiplier        Float   @default(1.00) @db.Float
+  CE                Int     @default(0) @db.UnsignedInt
+  VE                Int     @default(0) @db.UnsignedInt
+  requirements      Int     @default(0) @db.TinyInt
+  spell_range       Int     @default(0) @db.UnsignedSmallInt
+  content_tag       String? @db.VarChar(7)
+}
+
+model status_effects {
+  id           Int    @id @db.UnsignedSmallInt
+  name         String @db.VarChar(50)
+  flags        Int    @default(0) @db.UnsignedInt
+  type         Int    @default(0) @db.UnsignedSmallInt
+  negative_id  Int?   @default(0) @db.UnsignedSmallInt
+  overwrite    Int    @default(0) @db.UnsignedSmallInt
+  block_id     Int?   @default(0) @db.UnsignedSmallInt
+  remove_id    Int    @default(0) @db.UnsignedSmallInt
+  element      Int    @default(0) @db.UnsignedSmallInt
+  min_duration Int    @default(0) @db.UnsignedSmallInt
+  sort_key     Int    @default(0) @db.UnsignedSmallInt
+}
+
+model synth_recipes {
+  ID           Int    @id @default(autoincrement()) @db.UnsignedMediumInt
+  Desynth      Int    @db.UnsignedTinyInt
+  KeyItem      Int    @db.UnsignedInt
+  Wood         Int    @db.UnsignedTinyInt
+  Smith        Int    @db.UnsignedTinyInt
+  Gold         Int    @db.UnsignedTinyInt
+  Cloth        Int    @db.UnsignedTinyInt
+  Leather      Int    @db.UnsignedTinyInt
+  Bone         Int    @db.UnsignedTinyInt
+  Alchemy      Int    @db.UnsignedTinyInt
+  Cook         Int    @db.UnsignedTinyInt
+  Crystal      Int    @db.UnsignedSmallInt
+  HQCrystal    Int    @db.UnsignedSmallInt
+  Ingredient1  Int    @db.UnsignedSmallInt
+  Ingredient2  Int    @db.UnsignedSmallInt
+  Ingredient3  Int    @db.UnsignedSmallInt
+  Ingredient4  Int    @db.UnsignedSmallInt
+  Ingredient5  Int    @db.UnsignedSmallInt
+  Ingredient6  Int    @db.UnsignedSmallInt
+  Ingredient7  Int    @db.UnsignedSmallInt
+  Ingredient8  Int    @db.UnsignedSmallInt
+  Result       Int    @db.UnsignedSmallInt
+  ResultHQ1    Int    @db.UnsignedSmallInt
+  ResultHQ2    Int    @db.UnsignedSmallInt
+  ResultHQ3    Int    @db.UnsignedSmallInt
+  ResultQty    Int    @db.UnsignedTinyInt
+  ResultHQ1Qty Int    @db.UnsignedTinyInt
+  ResultHQ2Qty Int    @db.UnsignedTinyInt
+  ResultHQ3Qty Int    @db.UnsignedTinyInt
+  ResultName   String @db.TinyText
+}
+
+model traits {
+  traitid     Int     @db.UnsignedTinyInt
+  name        String  @db.Text
+  job         Int     @default(0) @db.UnsignedTinyInt
+  level       Int     @default(99) @db.UnsignedTinyInt
+  rank        Int     @default(1) @db.UnsignedTinyInt
+  modifier    Int     @default(0) @db.UnsignedSmallInt
+  value       Int     @default(0) @db.SmallInt
+  content_tag String? @db.VarChar(7)
+  meritid     Int     @default(0) @db.SmallInt
+
+  @@id([traitid, job, level, rank, modifier])
+}
+
+model transport {
+  id               Int    @id @db.UnsignedTinyInt
+  name             String @db.TinyText
+  transport        Int    @default(0) @db.UnsignedInt
+  door             Int    @default(0) @db.UnsignedInt
+  dock_x           Float  @default(0.000) @db.Float
+  dock_y           Float  @default(0.000) @db.Float
+  dock_z           Float  @default(0.000) @db.Float
+  dock_rot         Int    @default(0) @db.UnsignedTinyInt
+  boundary         Int    @default(0) @db.UnsignedSmallInt
+  anim_arrive      Int    @default(0) @db.UnsignedTinyInt
+  anim_depart      Int    @default(0) @db.UnsignedTinyInt
+  time_offset      Int    @default(0) @db.UnsignedSmallInt
+  time_interval    Int    @default(0) @db.UnsignedSmallInt
+  time_anim_arrive Int    @default(0) @db.UnsignedTinyInt
+  time_waiting     Int    @default(0) @db.UnsignedSmallInt
+  time_anim_depart Int    @default(0) @db.UnsignedTinyInt
+  zone             Int    @default(0) @db.UnsignedTinyInt
+}
+
+model unity_system {
+  leader          Int   @id @db.TinyInt
+  members_current Int   @default(0)
+  points_current  Float @default(0)
+  members_prev    Int   @default(0)
+  points_prev     Float @default(0)
+}
+
+model water_points {
+  waterid Int   @id @default(autoincrement()) @db.UnsignedInt
+  zoneid  Int   @db.UnsignedSmallInt
+  type    Int   @default(0) @db.UnsignedTinyInt
+  pointid Int   @default(0) @db.UnsignedTinyInt
+  pos_x   Float @default(0.00) @db.Float
+  pos_y   Float @default(0.00) @db.Float
+  pos_z   Float @default(0.00) @db.Float
+}
+
+model weapon_skills {
+  weaponskillid Int     @id @db.UnsignedTinyInt
+  name          String  @db.Text
+  jobs          Bytes   @db.Binary(22)
+  type          Int     @default(0) @db.UnsignedTinyInt
+  skilllevel    Int     @default(0) @db.UnsignedSmallInt
+  element       Int     @default(0) @db.UnsignedTinyInt
+  animation     Int     @default(0) @db.UnsignedTinyInt
+  animationTime Int     @default(0) @db.UnsignedSmallInt
+  range         Int     @default(5) @db.UnsignedTinyInt
+  aoe           Boolean @default(false)
+  primary_sc    Int     @default(0) @db.TinyInt
+  secondary_sc  Int     @default(0) @db.TinyInt
+  tertiary_sc   Int     @default(0) @db.TinyInt
+  main_only     Boolean @default(false)
+  unlock_id     Int     @default(0) @db.TinyInt
+}
+
+model zone_settings {
+  zoneid      Int    @id @default(0) @db.UnsignedSmallInt
+  zonetype    Int    @default(0) @db.UnsignedSmallInt
+  zoneip      String @db.TinyText
+  zoneport    Int    @default(0) @db.UnsignedSmallInt
+  name        String @db.TinyText
+  music_day   Int    @default(0) @db.UnsignedTinyInt
+  music_night Int    @default(0) @db.UnsignedTinyInt
+  battlesolo  Int    @default(0) @db.UnsignedTinyInt
+  battlemulti Int    @default(0) @db.UnsignedTinyInt
+  restriction Int    @default(0) @db.UnsignedTinyInt
+  tax         Float  @default(0.00) @db.Float
+  misc        Int    @default(0) @db.UnsignedSmallInt
+}
+
+model zone_weather {
+  zone    Int    @id @unique(map: "zone") @db.SmallInt
+  weather Bytes? @db.VarBinary(4320)
+}
+
+model zonelines {
+  zoneline Int   @id @db.UnsignedInt
+  fromzone Int   @default(0) @db.UnsignedSmallInt
+  tozone   Int   @default(0) @db.UnsignedSmallInt
+  tox      Float @default(0.000) @db.Float
+  toy      Float @default(0.000) @db.Float
+  toz      Float @default(0.000) @db.Float
+  rotation Int   @default(0) @db.UnsignedTinyInt
+}
