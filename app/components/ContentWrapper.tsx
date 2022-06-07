@@ -5,6 +5,6 @@ import React from 'react'
 
 export const ContentWrapper: React.FC<BoxProps> = ({ children, ...props }) => (
     <Flex {...props} justifyContent="center" paddingX="5">
-        <Box maxWidth="1280px">{children}</Box>
+        <Box maxWidth="1280px" width="100%">{children}</Box>
     </Flex >
 )

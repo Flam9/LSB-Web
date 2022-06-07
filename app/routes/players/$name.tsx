@@ -3,6 +3,7 @@ import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 import type { chars } from '@prisma/client';
 import { db } from '~/utils/db.server';
+import { GearGrid } from '~/components/gear-grid'
 
 type Equip = {
     slotid: number,
@@ -35,14 +36,12 @@ const ItemImage: React.FC<{ id: string, name: string }> = ({ id, name = "Unknown
     <img src={`https://static.ffxiah.com/images/icon/${id}.png`} alt={name} />
 )
 
-export default function WhosOnline() {
+export default function ProfilePage() {
     const data = useLoaderData<LoaderData>();
     console.log(data);
     return (
-        <>Gear:
-            {data.map(({ slotid, equipslotid, itemid, name }) => (
-                <p>{slotid} - {equipslotid} - <ItemImage id={`${itemid}`} name={name} /> - {name}</p>
-            ))}
+        <>
+            <GearGrid gear={data} />
         </>
     );
 }

@@ -55,6 +55,7 @@ export const SKILL_ID = {
 export const JOB_NAME = [
     '',     // None
     'Warrior',
+    'Monk',
     'White Mage',
     'Black Mage',
     'Red Mage',
@@ -105,24 +106,25 @@ export const JOB_ABBREVIATION = [
 ];
 
 // Equipment slot IDs
-export const EQUIPMENT_ID = {
-    'SLOT_MAIN': 0,
-    'SLOT_SUB': 1,
-    'SLOT_RANGED': 2,
-    'SLOT_AMMO': 3,
-    'SLOT_HEAD': 4,
-    'SLOT_BODY': 5,
-    'SLOT_HANDS': 6,
-    'SLOT_LEGS': 7,
-    'SLOT_FEET': 8,
-    'SLOT_NECK': 9,
-    'SLOT_WAIST': 10,
-    'SLOT_EAR1': 11,
-    'SLOT_EAR2': 12,
-    'SLOT_RING1': 13,
-    'SLOT_RING2': 14,
-    'SLOT_BACK': 15,
-};
+export const EQUIPMENT_ID = [
+    'Main',
+    'Sub',
+    'Ranged',
+    'Ammo',
+    'Head',
+    'Body',
+    'Hands',
+    'Legs',
+    'Feet',
+    'Neck',
+    'Waist',
+    'Ear1',
+    'Ear2',
+    'Ring1',
+    'Ring2',
+    'Back'
+] as const;
+export type EQUIPMENT_ID_TYPE = typeof EQUIPMENT_ID[number];
 
 export const FACE = [
     '1a',
