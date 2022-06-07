@@ -2,58 +2,58 @@
 
 // Character skill IDs (Combat, Ranged, Magic and Crafting)
 export const SKILL_ID = {
-    'non': 2,
-    'h2h': 1,
-    'dag': 2,
-    'swd': 3,
-    'gsd': 4,
-    'axe': 5,
-    'gax': 6,
-    'syh': 7,
-    'pol': 8,
-    'kat': 9,
-    'gkt': 10,
-    'clb': 11,
-    'stf': 12,
-    'ame': 22,
-    'ara': 23,
-    'ama': 24,
-    'arc': 25,
-    'mrk': 26,
-    'thr': 27,
-    'grd': 28,
-    'eva': 29,
-    'shl': 30,
-    'par': 31,
-    'div': 32,
-    'hea': 33,
-    'enh': 34,
-    'enf': 35,
-    'ele': 36,
-    'drk': 37,
-    'sum': 38,
-    'nin': 39,
-    'sng': 40,
-    'str': 41,
-    'wnd': 42,
-    'blu': 43,
-    'geo': 44,
-    'hnd': 45,
-    'fsh': 48,
-    'wdw': 49,
-    'smt': 50,
-    'gld': 51,
-    'clt': 52,
-    'lth': 53,
-    'bon': 54,
-    'alc': 55,
-    'cok': 56,
-    'syn': 57,
-    'rid': 58,
+    non: 2,
+    h2h: 1,
+    dag: 2,
+    swd: 3,
+    gsd: 4,
+    axe: 5,
+    gax: 6,
+    syh: 7,
+    pol: 8,
+    kat: 9,
+    gkt: 10,
+    clb: 11,
+    stf: 12,
+    ame: 22,
+    ara: 23,
+    ama: 24,
+    arc: 25,
+    mrk: 26,
+    thr: 27,
+    grd: 28,
+    eva: 29,
+    shl: 30,
+    par: 31,
+    div: 32,
+    hea: 33,
+    enh: 34,
+    enf: 35,
+    ele: 36,
+    drk: 37,
+    sum: 38,
+    nin: 39,
+    sng: 40,
+    str: 41,
+    wnd: 42,
+    blu: 43,
+    geo: 44,
+    hnd: 45,
+    fsh: 48,
+    wdw: 49,
+    smt: 50,
+    gld: 51,
+    clt: 52,
+    lth: 53,
+    bon: 54,
+    alc: 55,
+    cok: 56,
+    syn: 57,
+    rid: 58,
 };
 
 export const JOB_NAME = [
-    '',     // None
+    '', // None
     'Warrior',
     'Monk',
     'White Mage',
@@ -80,16 +80,16 @@ export const JOB_NAME = [
 
 // Jobs
 export const JOB_ABBREVIATION = [
-    '',     // None
-    'WAR',  // Warrior
-    'MNK',  // Monk
-    'WHM',  // White Mage
-    'BLM',  // Black Mage
-    'RDM',  // Red mage
-    'THF',  // Thief
-    'PLD',  // Paladin
-    'DRK',  // Dark Knight
-    'BST',  // Beastmaster
+    '', // None
+    'WAR', // Warrior
+    'MNK', // Monk
+    'WHM', // White Mage
+    'BLM', // Black Mage
+    'RDM', // Red mage
+    'THF', // Thief
+    'PLD', // Paladin
+    'DRK', // Dark Knight
+    'BST', // Beastmaster
     'BRD', // Bard
     'RNG', // Ranger
     'SAM', // Samurai
@@ -122,39 +122,13 @@ export const EQUIPMENT_ID = [
     'Ear2',
     'Ring1',
     'Ring2',
-    'Back'
+    'Back',
 ] as const;
 export type EQUIPMENT_ID_TYPE = typeof EQUIPMENT_ID[number];
 
-export const FACE = [
-    '1a',
-    '1b',
-    '2a',
-    '2b',
-    '3a',
-    '3b',
-    '4a',
-    '4b',
-    '5a',
-    '5b',
-    '6a',
-    '6b',
-    '7a',
-    '7b',
-    '8a',
-    '8b',
-];
+export const FACE = ['1a', '1b', '2a', '2b', '3a', '3b', '4a', '4b', '5a', '5b', '6a', '6b', '7a', '7b', '8a', '8b'];
 
-export const RACE = [
-    'Hm',
-    'Hf',
-    'Em',
-    'Ef',
-    'Tm',
-    'Tf',
-    'M',
-    'G'
-];
+export const RACE = ['Hm', 'Hf', 'Em', 'Ef', 'Tm', 'Tf', 'M', 'G'];
 
 export const AH_ITEM_TYPE = [
     'N/A',
@@ -220,11 +194,7 @@ export const AH_ITEM_TYPE = [
     'Grips',
 ];
 
-export const NATION = [
-    "San d'Oria",
-    'Bastok',
-    'Windurst'
-];
+export const NATION = ["San d'Oria", 'Bastok', 'Windurst'];
 
 export const INVENTORY_LOCATION = [
     'Inventory',
@@ -239,5 +209,5 @@ export const INVENTORY_LOCATION = [
     'Mog Wardrobe 2',
     'Mog Wardrobe 3',
     'Mog Wardrobe 4',
-    'Delivery Box'
-]
+    'Delivery Box',
+];

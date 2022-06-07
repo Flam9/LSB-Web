@@ -706,5 +706,5 @@ export const TITLES = [
     'SUPERNAL_SAVANT',
     'SOLAR_SAGE',
     'BOLIDE_BARON',
-    'MOON_MAVEN'
+    'MOON_MAVEN',
 ];

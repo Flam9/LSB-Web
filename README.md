@@ -17,7 +17,6 @@ This starts your app in development mode, which will purge the server require ca
 This project uses Prisma as an ORM. Make sure to copy the `.env.default` to `.env` and update the Database URL.
 If the schema in `prisma/schema.prisma` is out of date, delete it and run `npx prisma db pull`.
 
-
 ## Deployment
 
 First, build your app for production:

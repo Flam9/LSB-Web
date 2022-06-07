@@ -3,6 +3,6 @@
  */
 module.exports = {
     ignoredRouteFiles: ['**/.*'],
-    appDirectory: "app",
-    assetsBuildDirectory: "public/build",
+    appDirectory: 'app',
+    assetsBuildDirectory: 'public/build',
 };
