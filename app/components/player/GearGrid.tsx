@@ -33,7 +33,7 @@ const Equip: React.FC<EquipProps> = ({slot, item, equipSlot}) => {
     const [itemId, itemName] = item;
 
     return (
-        <Tooltip label={itemName} aria-label={`${itemName} equiped on ${slot}`}>
+        <Tooltip label={itemName} aria-label={`${itemName} equiped on ${slot}`} hasArrow openDelay={0} placement="top">
             <Box backgroundImage="url('https://www.ffxiah.com/images/equip_box.gif')">
                 <Img src={getItemImageUrl(itemId)} alt="" width="32px" height="32px" />
             </Box>
